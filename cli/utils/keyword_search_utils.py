@@ -1,14 +1,12 @@
 import string
-import io
-from .search_utils import DEFAULT_SEARCH_LIMIT, load_movies, PROJECT_ROOT
+from .search_utils import DEFAULT_SEARCH_LIMIT, load_movies, get_stop_words
+from nltk.stem import PorterStemmer
 
 
 def search_command(query: str, limit: int = DEFAULT_SEARCH_LIMIT) -> list[dict]:
     movies = load_movies()
     results = []
     query_tokens = tokenize_text(query)
-
-    print(query_tokens)
 
     for movie in movies:
         title_tokens = tokenize_text(movie["title"])
@@ -45,24 +43,15 @@ def tokenize_text(text: str) -> list[str]:
     return valid_tokens
 
 
-def get_stop_words() -> list[str]:
-    with open(f"{PROJECT_ROOT}/data/stopwords.txt","r") as f:
-        content = f.read()
-        row = content.splitlines()
-    
-    return row
-
 def remove_stop_words(words: list[str]) -> list[str]:
+    stemmer = PorterStemmer()
     stop_words = set(get_stop_words())
     words = set(words)
 
     diff = words.difference(stop_words)
 
-    return list(diff)
+    stemmed = []
+    for token in list(diff):
+        stemmed.append(stemmer.stem(token))
 
-
-
-
-
-
-
+    return stemmed
