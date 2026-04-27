@@ -1,13 +1,16 @@
 import string
-
-from .search_utils import DEFAULT_SEARCH_LIMIT, load_movies
+import io
+from .search_utils import DEFAULT_SEARCH_LIMIT, load_movies, PROJECT_ROOT
 
 
 def search_command(query: str, limit: int = DEFAULT_SEARCH_LIMIT) -> list[dict]:
     movies = load_movies()
     results = []
+    query_tokens = tokenize_text(query)
+
+    print(query_tokens)
+
     for movie in movies:
-        query_tokens = tokenize_text(query)
         title_tokens = tokenize_text(movie["title"])
         if has_matching_token(query_tokens, title_tokens):
             results.append(movie)
@@ -38,5 +41,28 @@ def tokenize_text(text: str) -> list[str]:
     for token in tokens:
         if token:
             valid_tokens.append(token)
+    valid_tokens = remove_stop_words(valid_tokens)
     return valid_tokens
+
+
+def get_stop_words() -> list[str]:
+    with open(f"{PROJECT_ROOT}/data/stopwords.txt","r") as f:
+        content = f.read()
+        row = content.splitlines()
+    
+    return row
+
+def remove_stop_words(words: list[str]) -> list[str]:
+    stop_words = set(get_stop_words())
+    words = set(words)
+
+    diff = words.difference(stop_words)
+
+    return list(diff)
+
+
+
+
+
+
 
