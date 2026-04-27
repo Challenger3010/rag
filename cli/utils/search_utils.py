@@ -1,5 +1,6 @@
 import json
 import os
+from nltk.stem import PorterStemmer
 
 
 DEFAULT_SEARCH_LIMIT = 5
@@ -21,3 +22,16 @@ def get_stop_words() -> list[str]:
         row = content.splitlines()
     
     return row
+
+def remove_stop_words(words: list[str]) -> list[str]:
+    stemmer = PorterStemmer()
+    stop_words = set(get_stop_words())
+    words = set(words)
+
+    diff = words.difference(stop_words)
+
+    stemmed = []
+    for token in list(diff):
+        stemmed.append(stemmer.stem(token))
+
+    return stemmed
