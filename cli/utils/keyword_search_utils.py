@@ -1,21 +1,5 @@
 import string
-from .search_utils import DEFAULT_SEARCH_LIMIT, load_movies, remove_stop_words
-
-
-def search_command(query: str, limit: int = DEFAULT_SEARCH_LIMIT) -> list[dict]:
-    movies = load_movies()
-    results = []
-    query_tokens = tokenize_text(query)
-
-    for movie in movies:
-        title_tokens = tokenize_text(movie["title"])
-        if has_matching_token(query_tokens, title_tokens):
-            results.append(movie)
-            if len(results) >= limit:
-                break
-
-    return results
-
+from .search_utils import remove_stop_words
 
 def has_matching_token(query_tokens: list[str], title_tokens: list[str]) -> bool:
     for query_token in query_tokens:

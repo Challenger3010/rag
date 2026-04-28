@@ -33,12 +33,19 @@ class InvertedIndex:
             self.docmap[doc_id] = movie
             self.__add_document(doc_id, doc_desc)
 
-
-
-
     def save(self):
         os.makedirs(CACHE_DIR, exist_ok=True)
         with open(self.docmap_path,"wb",) as f:
             pickle.dump(self.docmap, f)
         with open(self.index_path,"wb",) as f:
             pickle.dump(self.index, f)
+    
+    def load(self) -> None:
+        try:
+            with open(self.index_path, "rb") as f:
+                self.index = pickle.load(f)
+            with open(self.docmap_path, "rb") as f:
+                self.docmap = pickle.load(f)
+        except FileNotFoundError as e:
+            raise FileNotFoundError(f"Index files not found, run 'build' first: {e.filename}")
+        

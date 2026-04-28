@@ -1,8 +1,6 @@
 import argparse
-from InvertedIndex import InvertedIndex
 
-
-from utils.keyword_search_utils import search_command
+from utils.commands import search_command, build_command
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Keyword Search CLI")
@@ -20,19 +18,10 @@ def main() -> None:
             res = search_command(args.query)
             for i,res in enumerate(res, 1):
                 print(f"{i}. {res['title']}")
+
         case "build":
-            print(f"Building the inverted index...")
-            indexer = InvertedIndex()
-            indexer.build()
-            print(f"Saving the index...")
-            indexer.save()
-            docs = indexer.get_document("merida")
-            print("index saved")
+            build_command()
 
-
-
-            print(f"First document for token 'merida' = {docs[0]}")
-           
         case _:
             parser.print_help()
 
