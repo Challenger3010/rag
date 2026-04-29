@@ -39,6 +39,8 @@ def tf_command(doc_id: int, term: str):
 
     print("Frequency")
     print(freq)
-    
-    
 
+def idf_command(term: str):
+    idx = InvertedIndex()
+    idx.load()
+    print(f"Inverse document frequency of '{term}': {idx.get_idf(term):.2f}")

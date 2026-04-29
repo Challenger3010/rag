@@ -1,3 +1,4 @@
+import math
 import os
 import pickle
 from utils.keyword_search_utils import tokenize_text
@@ -72,5 +73,19 @@ class InvertedIndex:
         if len(tokens) > 1:
             raise ValueError(f"Expected one token, got {len(tokens)}: {tokens}")
         return self.term_freq.get(tokens[0], Counter())[doc_id]
+    
+    def get_idf(self, term: str) -> float:
+        tokens = tokenize_text(term)
+
+        if len(tokens) > 1:
+            raise ValueError(f"Expected one token, got {len(tokens)}")
+
+        token = tokens[0]
+
+        n = len(self.docmap)
+        df = len(self.index.get(token,set()))
+        
+        return math.log((n + 1)/(df + 1))
+
             
 
