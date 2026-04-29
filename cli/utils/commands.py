@@ -23,7 +23,7 @@ def search_command(query: str, limit: int = DEFAULT_SEARCH_LIMIT) -> list[dict]:
     return results
 
 
-def build_command():
+def build_command() -> None:
     idx = InvertedIndex()
     print(f"Building the inverted index...")
     idx.build()
@@ -32,7 +32,7 @@ def build_command():
     print("index saved succefully")
 
 
-def tf_command(doc_id: int, term: str):
+def tf_command(doc_id: int, term: str) -> None:
     idx = InvertedIndex()
     idx.load()
     freq = idx.get_tf(doc_id, term)
@@ -40,7 +40,32 @@ def tf_command(doc_id: int, term: str):
     print("Frequency")
     print(freq)
 
-def idf_command(term: str):
+def idf_command(term: str) -> None:
     idx = InvertedIndex()
     idx.load()
     print(f"Inverse document frequency of '{term}': {idx.get_idf(term):.2f}")
+
+def tfidf_command(doc_id: int, term: str) -> None:
+    idx = InvertedIndex()
+    idx.load()
+
+    tf = idx.get_tf(doc_id, term)
+    idf = idx.get_idf(term)
+
+    tfidf = tf * idf
+
+    print(f"TF-IDF score of '{term}' in document '{doc_id}': {tfidf:.2f}")
+
+def bm25_idf_command(term: str) -> None:
+    idx = InvertedIndex()
+    idx.load()
+
+    print(f"BM25 IDF score of '{term}': {idx.get_bm25_idf(term):.2f}")
+
+def bm25_tf_command(doc_id: int, term: str, k1) -> None:
+    idx = InvertedIndex()
+    idx.load()
+
+    tf = idx.get_bm25_tf(doc_id, term, k1)
+
+    print(f"BM25 TF score of '{term}' in document '{doc_id}': {tf:.2f}")

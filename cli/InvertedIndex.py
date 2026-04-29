@@ -2,7 +2,7 @@ import math
 import os
 import pickle
 from utils.keyword_search_utils import tokenize_text
-from utils.search_utils import load_movies, CACHE_DIR
+from utils.search_utils import load_movies, CACHE_DIR, BM25_K1
 
 from collections import defaultdict, Counter
 
@@ -86,6 +86,27 @@ class InvertedIndex:
         df = len(self.index.get(token,set()))
         
         return math.log((n + 1)/(df + 1))
+    
+    def get_bm25_idf(self, term: str) -> float:
+        tokens = tokenize_text(term)
 
+        if len(tokens) > 1:
+            raise ValueError(f"Expected one token, got {len(tokens)}")
+
+        token = tokens[0]
+
+        n = len(self.docmap)
+        df = len(self.index.get(token,set()))
+
+        idf = math.log((n - df + 0.5) / (df + 0.5) + 1)
+
+        return idf
+    
+    def get_bm25_tf(self, doc_id: int, term: str, k1=BM25_K1) -> float:
+
+        raw_tf = self.get_tf(doc_id, term)
+        bm25_tf = (raw_tf * (k1 + 1)) / (raw_tf + k1)
+
+        return bm25_tf
             
 

@@ -1,6 +1,7 @@
 import argparse
 
-from utils.commands import search_command, build_command, tf_command, idf_command
+from utils.search_utils import BM25_K1
+from utils.commands import search_command, build_command, tf_command, idf_command, tfidf_command, bm25_idf_command, bm25_tf_command
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Keyword Search CLI")
@@ -17,6 +18,18 @@ def main() -> None:
 
     idf_parser = subparser.add_parser("idf", help="Get IDF for a term")
     idf_parser.add_argument("term", type=str, help="Term")
+
+    tfidf_parser = subparser.add_parser("tfidf", help="TBD")
+    tfidf_parser.add_argument("doc_id", type=int, help="Document ID")
+    tfidf_parser.add_argument("term", type=str, help="Term")
+
+    bm25idf_parser = subparser.add_parser("bm25idf", help="Get IDF for a term")
+    bm25idf_parser.add_argument("term", type=str, help="Term")
+
+    bm25_tf_parser = subparser.add_parser("bm25tf", help="Get BM25 TF score for a given document ID and term")
+    bm25_tf_parser.add_argument("doc_id", type=int, help="Document ID")
+    bm25_tf_parser.add_argument("term", type=str, help="Term")
+    bm25_tf_parser.add_argument("k1", type=float, nargs='?', default=BM25_K1, help="Tunable BM25 K1 parameter")
 
     args = parser.parse_args()
 
@@ -36,6 +49,16 @@ def main() -> None:
         case "idf":
             idf_command(args.term)
 
+        case "tfidf":
+            tfidf_command(args.doc_id, args.term)
+        
+        case "bm25idf":
+            bm25_idf_command(args.term)
+        
+        case "bm25tf":
+            bm25_tf_command(args.doc_id, args.term, args.k1)
+
+    
         case _:
             parser.print_help()
 
