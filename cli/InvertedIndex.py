@@ -3,20 +3,26 @@ import pickle
 from utils.keyword_search_utils import tokenize_text
 from utils.search_utils import load_movies, CACHE_DIR
 
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 class InvertedIndex:
 
     def __init__(self) -> None:
         self.index = defaultdict(set)
         self.docmap: dict[int, dict] = {}
+        self.term_freq: dict[int, Counter] = {}
         self.index_path = os.path.join(CACHE_DIR, "index.pkl")
         self.docmap_path = os.path.join(CACHE_DIR, "docmap.pkl")
-    
+        self.freq_path = os.path.join(CACHE_DIR, "freq.pkl")
+
     def __add_document(self, doc_id: int, text: str) -> None:
         tokens = tokenize_text(text)
-        for token in set(tokens):
+        for token in tokens:
             self.index[token].add(doc_id)
+
+            if token not in self.term_freq:
+                self.term_freq[token] = Counter()
+            self.term_freq[token][doc_id] += 1
     
 
     def get_document(self, term: str) -> list[int]:
@@ -35,10 +41,17 @@ class InvertedIndex:
 
     def save(self):
         os.makedirs(CACHE_DIR, exist_ok=True)
-        with open(self.docmap_path,"wb",) as f:
-            pickle.dump(self.docmap, f)
-        with open(self.index_path,"wb",) as f:
-            pickle.dump(self.index, f)
+        try: 
+            with open(self.docmap_path,"wb",) as f:
+                pickle.dump(self.docmap, f)
+            with open(self.index_path,"wb",) as f:
+                pickle.dump(self.index, f)
+            with open(self.freq_path,"wb",) as f:
+                pickle.dump(self.term_freq, f)
+
+        except Exception as e:
+            raise Exception(f"Something went wrong saving the file", e)
+
     
     def load(self) -> None:
         try:
@@ -46,6 +59,18 @@ class InvertedIndex:
                 self.index = pickle.load(f)
             with open(self.docmap_path, "rb") as f:
                 self.docmap = pickle.load(f)
+            with open(self.freq_path, "rb") as f:
+                self.term_freq = pickle.load(f)
+
         except FileNotFoundError as e:
             raise FileNotFoundError(f"Index files not found, run 'build' first: {e.filename}")
         
+    
+    def get_tf(self, doc_id: int, term: str) -> int: 
+        tokens = tokenize_text(term)
+
+        if len(tokens) > 1:
+            raise ValueError(f"Expected one token, got {len(tokens)}: {tokens}")
+        return self.term_freq.get(tokens[0], Counter())[doc_id]
+            
+

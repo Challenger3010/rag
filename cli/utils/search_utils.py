@@ -27,12 +27,10 @@ def get_stop_words() -> list[str]:
 def remove_stop_words(words: list[str]) -> list[str]:
     stemmer = PorterStemmer()
     stop_words = set(get_stop_words())
-    words = set(words)
-
-    diff = words.difference(stop_words)
-
     stemmed = []
-    for token in list(diff):
-        stemmed.append(stemmer.stem(token))
 
+    for token in words:
+        if token not in stop_words:
+            stemmed.append(stemmer.stem(token))
+    
     return stemmed

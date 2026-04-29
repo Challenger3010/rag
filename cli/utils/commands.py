@@ -30,3 +30,15 @@ def build_command():
     print(f"Saving the index...")
     idx.save()
     print("index saved succefully")
+
+
+def tf_command(doc_id: int, term: str):
+    idx = InvertedIndex()
+    idx.load()
+    freq = idx.get_tf(doc_id, term)
+
+    print("Frequency")
+    print(freq)
+    
+    
+
