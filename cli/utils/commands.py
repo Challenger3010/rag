@@ -69,3 +69,13 @@ def bm25_tf_command(doc_id: int, term: str, k1, b: float) -> None:
     tf = idx.get_bm25_tf(doc_id, term, k1, b)
 
     print(f"BM25 TF score of '{term}' in document '{doc_id}': {tf:.2f}")
+
+def bm25search_command(query):
+    idx = InvertedIndex()
+    idx.load()
+
+    movies = idx.bm25_search(query)
+
+    for i, (score, movie) in enumerate(movies, start=1):
+        print(f"{i}. ({movie["id"]}) {movie["title"]} - {score:.2f}")
+
