@@ -62,10 +62,10 @@ def bm25_idf_command(term: str) -> None:
 
     print(f"BM25 IDF score of '{term}': {idx.get_bm25_idf(term):.2f}")
 
-def bm25_tf_command(doc_id: int, term: str, k1) -> None:
+def bm25_tf_command(doc_id: int, term: str, k1, b: float) -> None:
     idx = InvertedIndex()
     idx.load()
 
-    tf = idx.get_bm25_tf(doc_id, term, k1)
+    tf = idx.get_bm25_tf(doc_id, term, k1, b)
 
     print(f"BM25 TF score of '{term}' in document '{doc_id}': {tf:.2f}")
