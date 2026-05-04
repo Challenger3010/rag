@@ -91,3 +91,7 @@ def embed_text_command(text):
 def verify_embeddings_command():
     searcher = SemanticSearch()
     searcher.verify_embeddings()
+
+def embed_query_command(query):
+    searcher = SemanticSearch()
+    searcher.embed_query_text(query)
