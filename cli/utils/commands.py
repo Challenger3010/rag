@@ -1,6 +1,7 @@
 from InvertedIndex import InvertedIndex
 from .keyword_search_utils import tokenize_text
 from .search_utils import DEFAULT_SEARCH_LIMIT
+from .semantic_search import SemanticSearch
 
 def search_command(query: str, limit: int = DEFAULT_SEARCH_LIMIT) -> list[dict]:
 
@@ -78,4 +79,9 @@ def bm25search_command(query):
 
     for i, (score, movie) in enumerate(movies, start=1):
         print(f"{i}. ({movie["id"]}) {movie["title"]} - {score:.2f}")
+
+
+def verify_command():
+    searcher = SemanticSearch()
+    searcher.verify_model()
 
