@@ -1,7 +1,6 @@
 from sentence_transformers import SentenceTransformer
 from .search_utils import CACHE_DIR, load_movies
 
-import pickle
 import os
 import numpy as np
 
@@ -67,7 +66,7 @@ class SemanticSearch:
         for doc in documents:
             self.document_map[doc["id"]] = doc
         
-        path = f"{CACHE_DIR}/movie_embeddings"
+        path = f"{CACHE_DIR}/movie_embeddings.npy"
         if os.path.exists(path):
             self.embeddings = np.load(path)
             if len(self.embeddings) == len(documents):
@@ -82,6 +81,38 @@ class SemanticSearch:
         print(f"Query: {query}")
         print(f"First 3 dimensions: {embedding[:3]}")
         print(f"Shape: {embedding.shape}")
+    
+    def search(self, query, limit):
+
+        if self.embeddings is None:
+            raise ValueError("No embeddings loaded. Call 'load_or_create_embeddings' first.")
+        
+        embdeding = self.generate_embedding(query)
+
+        sim_list = []
+        for i, doc_emb in enumerate(self.embeddings):
+            sim = cosine_similarity(embdeding, doc_emb)
+
+            if sim > 0.0:
+                sim_list.append((sim, self.documents[i]))
+        
+        sim_list.sort(key=lambda x: x[0], reverse=True)
+        
+        return [{"score": s, "title": doc["title"], "description": doc["description"]} for s, doc in sim_list[:limit]]
+
+
+
+def cosine_similarity(vec1, vec2):
+    dot_product = np.dot(vec1, vec2)
+
+    norm1 = np.linalg.norm(vec1)
+    norm2 = np.linalg.norm(vec2)
+
+    if norm1 == 0 or norm2 == 0:
+        return 0.0
+    
+    return dot_product / (norm1 * norm2)
+
         
 
 

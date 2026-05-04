@@ -1,5 +1,5 @@
 import argparse
-from utils.commands import verify_command, embed_text_command, verify_embeddings_command, embed_query_command
+from utils.commands import verify_command, embed_text_command, verify_embeddings_command, embed_query_command, semantic_search
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Keyword Search CLI")
@@ -14,6 +14,10 @@ def main() -> None:
     embeder.add_argument("text", type=str, help="Text to be embedded")
     query_embeder.add_argument("text", type=str, help="Text to be embedded")
 
+    searcher = subparser.add_parser("search", help="embed query")
+    searcher.add_argument("query", type=str, help="query")
+    searcher.add_argument("--limit", type=int, help="limit")
+
     args = parser.parse_args()
 
     match args.command:
@@ -25,6 +29,8 @@ def main() -> None:
             verify_embeddings_command()
         case "embed_query":
             embed_query_command(args.text)
+        case "search":
+            semantic_search(args.query, args.limit)
 
         
         case _:

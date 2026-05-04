@@ -1,6 +1,6 @@
 from InvertedIndex import InvertedIndex
 from .keyword_search_utils import tokenize_text
-from .search_utils import DEFAULT_SEARCH_LIMIT
+from .search_utils import DEFAULT_SEARCH_LIMIT, load_movies
 from .semantic_search import SemanticSearch
 
 def search_command(query: str, limit: int = DEFAULT_SEARCH_LIMIT) -> list[dict]:
@@ -95,3 +95,12 @@ def verify_embeddings_command():
 def embed_query_command(query):
     searcher = SemanticSearch()
     searcher.embed_query_text(query)
+
+def semantic_search(query, limit=5):
+    searcher = SemanticSearch()
+    movies = load_movies()
+    searcher.load_or_create_embedings(movies)
+    results = searcher.search(query, limit)
+
+    for i, r in enumerate(results, 1):
+        print(f"{i}. {r['title']} ({r['score']:.4f}) \n{r['description']}")
