@@ -80,8 +80,11 @@ def bm25search_command(query):
     for i, (score, movie) in enumerate(movies, start=1):
         print(f"{i}. ({movie["id"]}) {movie["title"]} - {score:.2f}")
 
-
 def verify_command():
     searcher = SemanticSearch()
     searcher.verify_model()
+
+def embed_text_command(text):
+    searcher = SemanticSearch()
+    searcher.embed_text(text)
 
