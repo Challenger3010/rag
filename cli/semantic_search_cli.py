@@ -1,5 +1,5 @@
 import argparse
-from utils.commands import verify_command, embed_text_command, verify_embeddings_command, embed_query_command, semantic_search
+from utils.commands import verify_command, embed_text_command, verify_embeddings_command, embed_query_command, semantic_search, chunk_command
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Keyword Search CLI")
@@ -18,6 +18,10 @@ def main() -> None:
     searcher.add_argument("query", type=str, help="query")
     searcher.add_argument("--limit", type=int, help="limit")
 
+    chunker = subparser.add_parser("chunk", help="chunk text")
+    chunker.add_argument("text", type=str, help="text")
+    chunker.add_argument("--chunk-size", type=int, default=200, help="chunk-size")
+
     args = parser.parse_args()
 
     match args.command:
@@ -31,6 +35,9 @@ def main() -> None:
             embed_query_command(args.text)
         case "search":
             semantic_search(args.query, args.limit)
+        case "chunk":
+            chunk_command(args.text, args.chunk_size)
+
 
         
         case _:
