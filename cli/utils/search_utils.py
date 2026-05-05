@@ -1,5 +1,6 @@
 import json
 import os
+import re
 from nltk.stem import PorterStemmer
 
 
@@ -36,3 +37,23 @@ def remove_stop_words(words: list[str]) -> list[str]:
             stemmed.append(stemmer.stem(token))
     
     return stemmed
+
+def semantic_chunk(text: str, max_chunk_size = 4, overlap = 0):
+    counter = 0
+    for c in text:
+        counter += 1
+
+    splitted_text = re.split(r"(?<=[.!?])\s+", text)
+    i = 0
+    res = []
+
+    while i < len(splitted_text):
+        chunk = splitted_text[i: max_chunk_size + i]
+        res.append(" ".join(chunk))
+        i += max_chunk_size - overlap
+
+    # print(f"Semantically chunking {counter} characters")
+    # for j,words in enumerate(res,1):
+    #     print(f"{j}. {words}")
+    
+    return res

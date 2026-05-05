@@ -1,5 +1,6 @@
 import argparse
-from utils.commands import verify_command, embed_text_command, verify_embeddings_command, embed_query_command, semantic_search, chunk_command, semantic_chunk
+from utils.commands import verify_command, embed_text_command, verify_embeddings_command, embed_query_command, semantic_search, chunk_command, embed_chunks
+from utils.search_utils import semantic_chunk
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Keyword Search CLI")
@@ -28,6 +29,8 @@ def main() -> None:
     sem_chunk.add_argument("--max-chunk-size", type=int, default=4, help="chunk-size")
     sem_chunk.add_argument("--overlap", type=int, help="overlap", default=0)
 
+    subparser.add_parser("embed_chunks", help="chunk text")
+
     args = parser.parse_args()
 
     match args.command:
@@ -45,6 +48,9 @@ def main() -> None:
             chunk_command(args.text, args.chunk_size, args.overlap)
         case "semantic_chunk":
             semantic_chunk(args.text, args.max_chunk_size, args.overlap)
+        case "embed_chunks":
+            embed_chunks()
+
 
 
         

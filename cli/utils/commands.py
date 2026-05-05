@@ -1,9 +1,9 @@
-import re
-
 from InvertedIndex import InvertedIndex
+from ChunkedSemanticSearch import ChunkedSemanticSearch
 from .keyword_search_utils import tokenize_text
 from .search_utils import DEFAULT_SEARCH_LIMIT, load_movies
 from .semantic_search import SemanticSearch
+
 
 def search_command(query: str, limit: int = DEFAULT_SEARCH_LIMIT) -> list[dict]:
 
@@ -126,20 +126,12 @@ def chunk_command(text: str, chunk_size:int = 200, overlap:int = 0):
     for j,words in enumerate(res,1):
         print(f"{j}. {" ".join(words)}")
 
-def semantic_chunk(text: str, max_chunk_size = 4, overlap = 0):
-    counter = 0
-    for c in text:
-        counter += 1
 
-    splitted_text = re.split(r"(?<=[.!?])\s+", text)
-    i = 0
-    res = []
+def embed_chunks():
+    movies = load_movies()
+    chunker = ChunkedSemanticSearch()
+    embed = chunker.load_or_create_chunk_embeddings(movies)
 
-    while i < len(splitted_text):
-        res.append(splitted_text[i: max_chunk_size + i])
-        i += max_chunk_size - overlap
-
-    print(f"Semantically chunking {counter} characters")
-    for j,words in enumerate(res,1):
-        print(f"{j}. {" ".join(words)}")
+    print(f"Generated {len(embed)} chunked embeddings")
+    print("Generated 72909 chunked embeddings")
     
