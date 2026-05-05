@@ -1,3 +1,5 @@
+import re
+
 from InvertedIndex import InvertedIndex
 from .keyword_search_utils import tokenize_text
 from .search_utils import DEFAULT_SEARCH_LIMIT, load_movies
@@ -124,5 +126,20 @@ def chunk_command(text: str, chunk_size:int = 200, overlap:int = 0):
     for j,words in enumerate(res,1):
         print(f"{j}. {" ".join(words)}")
 
-def semantic_chunk(text, max_chunk_size = 4, overlap = 0):
-    pass
+def semantic_chunk(text: str, max_chunk_size = 4, overlap = 0):
+    counter = 0
+    for c in text:
+        counter += 1
+
+    splitted_text = re.split(r"(?<=[.!?])\s+", text)
+    i = 0
+    res = []
+
+    while i < len(splitted_text):
+        res.append(splitted_text[i: max_chunk_size + i])
+        i += max_chunk_size - overlap
+
+    print(f"Semantically chunking {counter} characters")
+    for j,words in enumerate(res,1):
+        print(f"{j}. {" ".join(words)}")
+    
