@@ -1,5 +1,5 @@
 import argparse
-from utils.commands import verify_command, embed_text_command, verify_embeddings_command, embed_query_command, semantic_search, chunk_command, embed_chunks
+from utils.commands import verify_command, embed_text_command, verify_embeddings_command, embed_query_command, semantic_search, chunk_command, embed_chunks, search_chunked
 from utils.search_utils import semantic_chunk
 
 def main() -> None:
@@ -31,6 +31,10 @@ def main() -> None:
 
     subparser.add_parser("embed_chunks", help="chunk text")
 
+    search_chunker = subparser.add_parser("search_chunked", help="chunk text")
+    search_chunker.add_argument("query", type=str, help="text")
+    search_chunker.add_argument("--limit", type=int, default=5, help="limit")
+
     args = parser.parse_args()
 
     match args.command:
@@ -50,6 +54,8 @@ def main() -> None:
             semantic_chunk(args.text, args.max_chunk_size, args.overlap)
         case "embed_chunks":
             embed_chunks()
+        case "search_chunked":
+            search_chunked(args.query, args.limit)
 
 
 

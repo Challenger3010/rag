@@ -39,21 +39,41 @@ def remove_stop_words(words: list[str]) -> list[str]:
     return stemmed
 
 def semantic_chunk(text: str, max_chunk_size = 4, overlap = 0):
+
+    text = text.strip()
+    if not text:
+        return []
+
     counter = 0
     for c in text:
         counter += 1
 
     splitted_text = re.split(r"(?<=[.!?])\s+", text)
+
+    if len(splitted_text) == 1 and not text.endswith((".", "!", "?")):
+        splitted_text = [text]
+
     i = 0
     res = []
 
     while i < len(splitted_text):
         chunk = splitted_text[i: max_chunk_size + i]
-        res.append(" ".join(chunk))
+
+        cleaned_sentences = []
+        for chunk_sentence in chunk:
+            chunk_sentence = chunk_sentence.strip()
+
+            if chunk_sentence:
+                cleaned_sentences.append(chunk_sentence)
+        
+        if not cleaned_sentences:
+            i += max_chunk_size - overlap
+            continue
+        
+        chunk_new = " ".join(cleaned_sentences)
+
+        res.append(chunk_new)
         i += max_chunk_size - overlap
 
-    # print(f"Semantically chunking {counter} characters")
-    # for j,words in enumerate(res,1):
-    #     print(f"{j}. {words}")
     
     return res

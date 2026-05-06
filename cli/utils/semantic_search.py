@@ -11,7 +11,76 @@ class SemanticSearch:
         self.embeddings = None
         self.documents = None
         self.document_map = {}
-    
+
+    def generate_embedding(self, text: str) -> list[str]:
+        if not text or not text.strip():
+            raise ValueError("Text can not be empty or whitespaces")
+        
+        embedding = self.model.encode([text])
+        return embedding[0]
+
+
+    def build_embeddings(self, documents: list[dict]):
+        self.documents = documents
+        self.document_map = {}
+        doc_list = []
+
+        for doc in documents:
+            self.document_map[doc["id"]] = doc
+
+            doc_list.append(f"{doc['title']}: {doc['description']}")
+
+        self.embeddings = self.model.encode(doc_list, show_progress_bar=True)
+
+        os.makedirs(os.path.dirname(f"{CACHE_DIR}/movie_embeddings.npy"), exist_ok=True)
+        np.save(f"{CACHE_DIR}/movie_embeddings.npy", self.embeddings)
+        return self.embeddings
+
+    def load_or_create_embedings(self, documents):
+        self.documents = documents
+        self.document_map = {}
+
+        for doc in documents:
+            self.document_map[doc["id"]] = doc
+        
+        path = f"{CACHE_DIR}/movie_embeddings.npy"
+
+        if os.path.exists(path):
+            self.embeddings = np.load(path)
+            if len(self.embeddings) == len(documents):
+                return self.embeddings
+
+        return self.build_embeddings(documents)
+
+    def search(self, query, limit=5):
+
+        if self.embeddings is None or self.embeddings.size == 0:
+            raise ValueError("No embeddings loaded. Call 'load_or_create_embeddings' first.")
+       
+        if self.documents is None or len(self.documents) == 0:
+            raise ValueError("No documents loaded. Call `load_or_create_embeddings` first.") 
+
+        embdeding = self.generate_embedding(query)
+
+        sim_list = []
+        for i, doc_emb in enumerate(self.embeddings):
+            sim = cosine_similarity(embdeding, doc_emb)
+            sim_list.append((sim, self.documents[i]))
+        
+        sim_list.sort(key=lambda x: x[0], reverse=True)
+
+        results = []
+
+        for score, doc in sim_list[:limit]:
+            results.append({
+                "score": score,
+                "title": doc["title"],
+                "description": doc["description"]
+            })
+        
+        return results
+        
+
     def verify_model(self) -> None:
         searcher = SemanticSearch()
         print(f"Model loaded: {searcher.model}")
@@ -27,13 +96,7 @@ class SemanticSearch:
         print(f"Embeddings shape: {embeddings.shape[0]} vectors in {embeddings.shape[1]} dimensions")
 
     
-    def generate_embedding(self, text: str) -> list[str]:
-        if len(text) == 0 or text.isspace():
-            raise ValueError("Text can not be empty or whitespaces")
-        
-        embedding = self.model.encode([text])
 
-        return embedding[0]
     
     def embed_text(self, text: str) -> None:
         searcher = SemanticSearch()
@@ -43,36 +106,8 @@ class SemanticSearch:
         print(f"First 3 dimensions: {embedding[:3]}")
         print(f"Dimensions: {embedding.shape[0]}")
  
-    def build_embeddings(self, documents: list[dict]):
-        self.documents = documents
-        self.document_map = {}
 
-        doc_list = []
-        for doc in documents:
-            self.document_map[doc["id"]] = doc
-
-            doc_list.append(f"{doc['title']}: {doc['description']}")
-
-        self.embeddings = self.model.encode(doc_list, show_progress_bar=True)
-
-        np.save(f"{CACHE_DIR}/movie_embeddings.npy", self.embeddings)
-
-        return self.embeddings
     
-    def load_or_create_embedings(self, documents):
-        self.documents = documents
-        self.document_map = {}
-
-        for doc in documents:
-            self.document_map[doc["id"]] = doc
-        
-        path = f"{CACHE_DIR}/movie_embeddings.npy"
-        if os.path.exists(path):
-            self.embeddings = np.load(path)
-            if len(self.embeddings) == len(documents):
-                return self.embeddings
-
-        return self.build_embeddings(documents)
     
     def embed_query_text(self, query):
         searcher = SemanticSearch()
@@ -82,25 +117,6 @@ class SemanticSearch:
         print(f"First 3 dimensions: {embedding[:3]}")
         print(f"Shape: {embedding.shape}")
     
-    def search(self, query, limit):
-
-        if self.embeddings is None:
-            raise ValueError("No embeddings loaded. Call 'load_or_create_embeddings' first.")
-        
-        embdeding = self.generate_embedding(query)
-
-        sim_list = []
-        for i, doc_emb in enumerate(self.embeddings):
-            sim = cosine_similarity(embdeding, doc_emb)
-
-            if sim > 0.0:
-                sim_list.append((sim, self.documents[i]))
-        
-        sim_list.sort(key=lambda x: x[0], reverse=True)
-        
-        return [{"score": s, "title": doc["title"], "description": doc["description"]} for s, doc in sim_list[:limit]]
-
-
 
 def cosine_similarity(vec1, vec2):
     dot_product = np.dot(vec1, vec2)
@@ -114,14 +130,3 @@ def cosine_similarity(vec1, vec2):
     return dot_product / (norm1 * norm2)
 
         
-
-
-        
-
-
-
-        
-
-
-
-

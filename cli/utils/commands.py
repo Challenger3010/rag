@@ -134,4 +134,20 @@ def embed_chunks():
 
     print(f"Generated {len(embed)} chunked embeddings")
     print("Generated 72909 chunked embeddings")
+
+def search_chunked(query, limit=5):
+    query = query.strip()
+
+    if not query:
+        return []
+
+    movies = load_movies()
+    searcher = ChunkedSemanticSearch()
+
+    searcher.load_or_create_chunk_embeddings(movies)
     
+    results = searcher.search_chunk(query=query, limit=limit)
+
+    for i,res in enumerate(results):
+        print(f"\n{i}. {res["title"]} (score: {res["score"]:.4f})")
+        print(f"   {res["document"]}...")
