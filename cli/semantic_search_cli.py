@@ -51,7 +51,9 @@ def main() -> None:
         case "chunk":
             chunk_command(args.text, args.chunk_size, args.overlap)
         case "semantic_chunk":
-            semantic_chunk(args.text, args.max_chunk_size, args.overlap)
+            res = semantic_chunk(args.text, args.max_chunk_size, args.overlap)
+            for i, chunk in enumerate(res, 1):
+                print(f"{i}. {chunk}")
         case "embed_chunks":
             embed_chunks()
         case "search_chunked":
