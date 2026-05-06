@@ -24,3 +24,28 @@ class HybridSearch:
 
     def rrf_search(self, query, k, limit=10):
         raise NotImplementedError("RRF hybrid search is not implemented yet.")
+
+def normalize(scores):
+    if not scores:
+        return []
+    
+    scores = [float(s) for s in scores]
+
+    min_score = min(scores)
+    max_score = max(scores)
+
+    if min_score == max_score:
+        return [1.0] * len(scores)
+
+
+    min_max = max_score - min_score
+
+    res = []
+    for score in scores:
+        norma = (score - min_score) / (min_max)
+        res.append(round(norma,4))
+    
+    return res
+    
+
+    
